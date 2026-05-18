@@ -1,0 +1,56 @@
+
+
+services:
+  # 1. Capa de Base de Datos (Innovatech DB)
+  db:
+    image: mysql:8
+    container_name: innovatech-db
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_DATABASE: innovatech_db # Nombre de la base de datos real del caso
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql # Cumplimiento de criterio de Persistencia de Datos
+
+  # 2. Microservicio de Despachos
+  back-despachos:
+    build: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO # Importante asegurarse de que el nombre coincida con la carpeta del microservicio
+    container_name: service-despachos
+    ports:
+      - "8081:8080"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=innovatech_db
+      - DB_USER=root
+      - DB_PASSWORD=admin123
+    depends_on:
+      - db
+
+  # 3. Microservicio de Ventas
+  back-ventas:
+    build: ./back-Ventas_SpringBoot/Springboot-API-REST # Importante asegurarse de que el nombre coincida con la carpeta del microservicio
+    container_name: service-ventas
+    ports:
+      - "8082:8080"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=innovatech_db
+      - DB_USER=root
+      - DB_PASSWORD=admin123
+    depends_on:
+      - db
+
+  # 4. El Frontend de Despachos
+  frontend:
+    build: ./front_despacho # Importante asegurarse de que el nombre coincida con la carpeta del microservicio 
+    container_name: app-frontend
+    ports:
+      - "8083:80" # app corriendo en http://localhost:8080
+    depends_on:
+      - back-despachos
+      - back-ventas
+
+volumes:
+  db_data: # El volumen nombrado para guardar los datos de forma persistente
+  # asegura que los registros de ventas y despachos no se pierdan si los contenedores se detienen o se reinician.
