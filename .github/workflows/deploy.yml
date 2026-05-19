@@ -20,13 +20,11 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Conectarse a la EC2 y actualizar la App
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_PUBLIC_IP }} # Lee la IP desde secretos
-          username: ssm-user
-          key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
-          script: |
-            cd /home/ssm-user/Innovatech-Proyecto
-            git pull origin main
-            DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker-compose up --build -d
+      - name: Desplegar comandos vía AWS SSM (Sin usar SSH)
+        run: |
+          aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_BACKEND_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Actualizando contenedores Docker mediante automatizacion" \
+            --parameters 'commands=["cd /home/ssm-user/Innovatech-Proyecto", "git pull origin main", "DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker-compose up --build -d"]' \
+            --output text
