@@ -1,0 +1,32 @@
+name: Deploy Innovatech Continuo
+
+on:
+  push:
+    branches:
+      - main # se activa solo cuando se hace push a la rama main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar el código en el robot
+        uses: actions/checkout@v4
+
+      - name: Configurar las credenciales de AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Conectarse a la EC2 y actualizar la App
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_PUBLIC_IP }} # Lee la IP desde secretos
+          username: ssm-user
+          key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
+          script: |
+            cd /home/ssm-user/Innovatech-Proyecto
+            git pull origin main
+            DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker-compose up --build -d
