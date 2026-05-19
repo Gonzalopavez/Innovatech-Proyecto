@@ -26,5 +26,5 @@ jobs:
             --instance-ids "${{ secrets.EC2_BACKEND_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
             --comment "Actualizando contenedores Docker mediante automatizacion" \
-            --parameters 'commands=["cd /home/ssm-user/Innovatech-Proyecto", "git pull origin main", "DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker-compose up --build -d"]' \
+            --parameters 'commands=["cd /home/ssm-user/Innovatech-Proyecto", "git pull origin main", "DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker-compose up --build --force-recreate -d"]' \
             --output text
