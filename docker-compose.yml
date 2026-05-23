@@ -53,4 +53,4 @@ services:
 
 volumes:
   db_data: # El volumen nombrado para guardar los datos de forma persistente
-  # asegura que los registros de ventas y despachos no se pierdan si los contenedores se detienen o se reinician.
+  # asegura que los registros de ventas y despachos no se pierdan si los contenedores se detienen o se reinician. 
